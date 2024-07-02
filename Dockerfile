@@ -1,20 +1,31 @@
-# Utiliza una imagen base de Python
-FROM python:3.10.1
+# Usa una imagen base de Ubuntu Server 20.04 LTS con Python 3.10.1
+FROM python:3.10.1-slim
 
-# Establece el directorio de trabajo en /app
+# Evita que la instalación solicite interacción del usuario
+ENV DEBIAN_FRONTEND=noninteractive
+
+# Actualiza los repositorios e instala las actualizaciones del sistema
+RUN apt-get update \
+    && apt-get upgrade -y \
+    && apt-get install -y libgl1-mesa-glx libglib2.0-0
+
+# Establece el directorio de trabajo
 WORKDIR /app
 
-# Copia el archivo requirements.txt al contenedor
+# Copia los archivos de requisitos
 COPY requirements.txt .
 
-# Instala las dependencias de la aplicación
-RUN pip install -r requirements.txt
+#Actualziar pip
+RUN pip install --upgrade pip
 
-# Copia todo el contenido del directorio actual al contenedor
+# Instala las dependencias de la aplicación
+RUN pip install --no-cache-dir -r requirements.txt
+
+# Copia el resto de la aplicación al contenedor
 COPY . .
 
-# Expone el puerto 5000 (o el puerto en el que se ejecute tu aplicación Flask)
+# Exponer el puerto en el que correrá la aplicación (ajusta según sea necesario)
 EXPOSE 5000
 
-# Comando para ejecutar tu aplicación Flask
+# Comando para correr la aplicación
 CMD ["python", "app.py"]
